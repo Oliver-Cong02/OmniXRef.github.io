@@ -361,6 +361,9 @@ a.res-btn[href]:hover{transform:translateY(-2px);background:#223847;box-shadow:i
 .dv-play svg{width:14px;height:14px;margin-left:2px}
 .dv + .hero-actions{margin:30px 0 46px}
 @media(max-width:900px){
+  .topnav{flex-wrap:nowrap;min-width:0;overflow-x:auto;scrollbar-width:none}
+  .topnav::-webkit-scrollbar{display:none}
+  .topnav a{white-space:nowrap;padding:7px 10px}
   .au-break{display:none}
   .author-list{gap:6px 20px;font-size:17px}
 }
