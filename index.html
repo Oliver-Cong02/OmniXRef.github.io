@@ -33,13 +33,14 @@ window.LINKS = {
   arxiv: ""    // e.g. "https://arxiv.org/abs/XXXX.XXXXX"
 };
 // ================= DEMO VIDEO =================
-// The hero player. autoplay: starts muted and loops (browsers only allow silent autoplay);
-// visitors turn sound on with the "Sound off" pill. Set autoplay:false for click-to-play.
+// The hero player: autoplays (looping) while on screen. Set autoplay:false for click-to-play,
+// sound:false to always start muted.
 // To swap the video, replace the mp4 (or point src at a new file in assets/video/).
 window.DEMO_VIDEO = {
   src:      "assets/video/OmniXRef_Demo_Video.mp4",
   poster:   "assets/video/demo_poster.jpg?v=2",
-  autoplay: true
+  autoplay: true,
+  sound:    true    // try sound first; if the browser refuses, start muted and unmute on the first click/tap/key
 };
 </script>
 <style>
@@ -472,8 +473,9 @@ document.querySelectorAll(".res-btn[data-link]").forEach(function(a){ var u=LK[a
   a.href=u; a.target="_blank"; a.rel="noopener"; a.classList.remove("is-soon"); a.removeAttribute("aria-disabled"); a.removeAttribute("title");
   var t=a.querySelector(".soon-tag"); if(t) t.remove(); });
 var DV_TPL="<video muted playsinline preload=\"metadata\" poster=\"{poster}\"><source src=\"{src}\" type=\"video/mp4\">Your browser does not support HTML5 video.</video><button class=\"dv-sound\" type=\"button\" aria-pressed=\"false\" aria-label=\"Unmute demo video\"><svg class=\"i-off\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H2v6h4l5 4V5z\"/><path d=\"m23 9-6 6M17 9l6 6\"/></svg><svg class=\"i-on\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H2v6h4l5 4V5z\"/><path d=\"M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14\"/></svg><span class=\"dv-sound-l\">Sound off</span></button><button class=\"dv-ph dv-start\" type=\"button\" aria-label=\"Play demo video\"><span class=\"dv-badge\"><span class=\"dv-play\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 4.8v14.4L19 12z\" fill=\"currentColor\"/></svg></span><span class=\"dv-label\">Watch demo video</span><em class=\"dv-dur\"></em></span></button>";
-// demo video: autoplays muted and loops (browsers only allow silent autoplay); the pill turns sound on.
-// Falls back to a click-to-play poster if autoplay is blocked, reduced motion is requested, or Data Saver is on.
+// demo video: autoplays while on screen, sound on by default. Browsers usually refuse sound before the
+// visitor has interacted with the page, so it then starts muted and turns sound on at the first click / tap / key.
+// Falls back to a click-to-play poster if even muted autoplay is blocked, reduced motion is requested, or Data Saver is on.
 var DV=window.DEMO_VIDEO||{}, dvf=document.getElementById("dv-frame");
 if(dvf && DV.src && !dvf.querySelector("video")){
   dvf.classList.add("has-video","playing");
@@ -487,33 +489,55 @@ if(dvv&&dvb){
   var dvAuto=DV.autoplay!==false
     && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
     && !(navigator.connection && navigator.connection.saveData);
-  var dvUserPaused=false, dvSelfPause=false, dvInView=true, ptb=document.getElementById("playtoggle");
+  var dvWantSound=DV.sound!==false;                       // the page's default: sound on
+  var dvUserPaused=false, dvSelfPause=false, dvInView=true, dvUserMuted=false, dvSoundRefused=false, dvArmed=false;
+  var dvSelfMuteAt=0, dvUnmuteAt=0, ptb=document.getElementById("playtoggle");
   var dvAllPaused=function(){ return !!ptb && ptb.getAttribute("aria-pressed")==="true"; };
   var dvPoster=function(on){ dvf.classList.toggle("playing",!on); if(on) dvv.controls=false; };
-  var dvPlay=function(){ var p=dvv.play(); if(p&&p.catch) p.catch(function(e){        // blocked or unplayable -> poster; AbortError = our own pause
-    if(e && (e.name==="NotAllowedError" || e.name==="NotSupportedError")) dvPoster(true); }); };
+  var dvSetMuted=function(m){ if(dvv.muted!==m){ dvSelfMuteAt=Date.now(); dvv.muted=m; } };
+  var dvArm=function(){                                     // turn sound on at the visitor's first interaction outside the player
+    if(dvArmed) return; dvArmed=true;
+    var evs=["pointerdown","keydown","touchend"];
+    var on=function(e){
+      if(dvf.contains(e.target)) return;                    // the player's own buttons handle themselves
+      evs.forEach(function(t){ document.removeEventListener(t,on,true); });
+      dvSoundRefused=false;
+      if(dvWantSound && !dvUserMuted && dvv.muted){ dvUnmuteAt=Date.now(); dvSetMuted(false); }
+    };
+    evs.forEach(function(t){ document.addEventListener(t,on,true); });
+  };
+  var dvPlay=function(){ var p=dvv.play(); if(p&&p.catch) p.catch(function(e){
+    if(!e) return;
+    if(e.name==="NotAllowedError" && !dvv.muted){ dvSoundRefused=true; dvSetMuted(true); dvArm(); dvPlay(); }  // sound refused -> silent for now
+    else if(e.name==="NotAllowedError" || e.name==="NotSupportedError") dvPoster(true);                      // AbortError = our own pause
+  }); };
+  var dvStart=function(){ if(dvWantSound && !dvUserMuted && !dvSoundRefused) dvSetMuted(false); dvPlay(); };
   var dvHold=function(){ if(!dvv.paused){ dvSelfPause=true; dvv.pause(); } };
   var dvSound=function(){ if(!dvs) return; var on=!dvv.muted; dvs.classList.toggle("on",on); dvs.setAttribute("aria-pressed",String(on));
     dvs.setAttribute("aria-label",on?"Mute demo video":"Unmute demo video"); dvs.querySelector(".dv-sound-l").textContent=on?"Sound on":"Sound off"; };
   var dvDur=function(){ var d=Math.round(dvv.duration||0), el=dvf.querySelector(".dv-dur"); if(d&&el) el.textContent="· "+Math.floor(d/60)+":"+("0"+d%60).slice(-2); };
   dvv.addEventListener("loadedmetadata",dvDur); if(dvv.readyState>=1) dvDur();
   dvv.addEventListener("play",function(){ dvUserPaused=false; dvv.controls=true; dvPoster(false); });
-  dvv.addEventListener("pause",function(){ if(dvSelfPause) dvSelfPause=false; else if(!dvv.ended && !document.hidden) dvUserPaused=true; });  // browser-initiated pauses in hidden tabs are not the user's
-  document.addEventListener("visibilitychange",function(){ if(!dvAuto) return; if(document.hidden) dvHold(); else if(dvInView && !dvUserPaused && !dvAllPaused()) dvPlay(); });
-  dvv.addEventListener("volumechange",dvSound);
+  dvv.addEventListener("pause",function(){
+    if(dvSelfPause){ dvSelfPause=false; return; }
+    if(Date.now()-dvUnmuteAt<500 && !document.hidden){ dvSoundRefused=true; dvSetMuted(true); dvPlay(); return; }  // browser refused the unmute
+    if(!dvv.ended && !document.hidden) dvUserPaused=true;  // browser-initiated pauses in hidden tabs are not the user's
+  });
+  dvv.addEventListener("volumechange",function(){ if(Date.now()-dvSelfMuteAt>150) dvUserMuted=dvv.muted; dvSound(); });  // native controls
   dvv.addEventListener("ended",function(){ dvPoster(true); try{ dvv.load(); }catch(e){}
     var l=dvb.querySelector(".dv-label"); if(l) l.textContent="Replay demo video"; dvb.setAttribute("aria-label","Replay demo video"); });
-  dvb.addEventListener("click",function(){ dvv.muted=false; dvPlay(); });            // a click is a user gesture: play with sound
-  if(dvs) dvs.addEventListener("click",function(){ dvv.muted=!dvv.muted; if(dvv.paused) dvPlay(); });
+  dvb.addEventListener("click",function(){ dvSoundRefused=false; dvSetMuted(!dvWantSound); dvPlay(); });   // poster click = user gesture
+  if(dvs) dvs.addEventListener("click",function(){ var m=!dvv.muted; dvUserMuted=m; dvSoundRefused=false; dvSetMuted(m); dvSound(); if(dvv.paused) dvPlay(); });
+  document.addEventListener("visibilitychange",function(){ if(!dvAuto) return; if(document.hidden) dvHold(); else if(dvInView && !dvUserPaused && !dvAllPaused()) dvStart(); });
   if(ptb) ptb.addEventListener("click",function(){ setTimeout(function(){              // after the page's own "Pause all" handler
-    if(dvAllPaused()) dvHold(); else if(dvAuto && dvInView && !dvUserPaused) dvPlay(); },0); });
+    if(dvAllPaused()) dvHold(); else if(dvAuto && dvInView && !dvUserPaused) dvStart(); },0); });
   if(dvAuto){                                                                            // plays only while >=20% on screen
-    dvv.muted=true; dvv.loop=true; dvPoster(false);
+    dvv.loop=true; dvPoster(false);
     if("IntersectionObserver" in window) new IntersectionObserver(function(es){ es.forEach(function(e){
       dvInView=e.isIntersecting && e.intersectionRatio>=.2;
-      if(!dvInView) dvHold(); else if(!dvUserPaused && !dvAllPaused()) dvPlay(); }); },{threshold:[0,.2]}).observe(dvf);
-    else dvPlay();
-  } else { dvv.muted=false; dvPoster(true); }
+      if(!dvInView) dvHold(); else if(!dvUserPaused && !dvAllPaused()) dvStart(); }); },{threshold:[0,.2]}).observe(dvf);
+    else dvStart();
+  } else { dvSetMuted(!dvWantSound); dvPoster(true); }
   dvSound();
 }
 function nm(k){ return '<span class="nm" data-k="'+k+'">'+wmHTML(N[k]||k)+'</span>'; }
