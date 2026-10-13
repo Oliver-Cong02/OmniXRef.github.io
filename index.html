@@ -33,11 +33,13 @@ window.LINKS = {
   arxiv: ""    // e.g. "https://arxiv.org/abs/XXXX.XXXXX"
 };
 // ================= DEMO VIDEO =================
-// The hero player: poster + play button; clicking starts playback with controls.
+// The hero player. autoplay: starts muted and loops (browsers only allow silent autoplay);
+// visitors turn sound on with the "Sound off" pill. Set autoplay:false for click-to-play.
 // To swap the video, replace the mp4 (or point src at a new file in assets/video/).
 window.DEMO_VIDEO = {
-  src:    "assets/video/OmniXRef_Demo_Video.mp4",
-  poster: "assets/video/demo_poster.jpg?v=2"
+  src:      "assets/video/OmniXRef_Demo_Video.mp4",
+  poster:   "assets/video/demo_poster.jpg?v=2",
+  autoplay: true
 };
 </script>
 <style>
@@ -157,6 +159,14 @@ a.res-btn[href]:hover,.hero-actions a:first-child:hover{transform:translateY(-2p
 .dv-start:hover .dv-play{transform:scale(1.08)}
 .dv-start:focus-visible{outline:none}
 .dv-start:focus-visible .dv-badge{outline:2.5px solid #fff;outline-offset:3px}
+/* sound pill: the video autoplays muted; this turns sound on/off */
+.dv-sound{position:absolute;top:14px;right:14px;z-index:4;display:none;align-items:center;gap:8px;padding:8px 14px 8px 11px;border-radius:999px;border:1px solid rgba(255,255,255,.24);background:rgba(14,20,28,.5);-webkit-backdrop-filter:blur(10px) saturate(1.3);backdrop-filter:blur(10px) saturate(1.3);color:#fff;font:650 13px/1 var(--sans);letter-spacing:.005em;cursor:pointer;transition:background-color .2s,border-color .2s}
+.dv-frame.playing .dv-sound{display:inline-flex}
+.dv-sound:hover{background:rgba(14,20,28,.74);border-color:rgba(255,255,255,.45)}
+.dv-sound:focus-visible{outline:2.5px solid #fff;outline-offset:2px}
+.dv-sound svg{width:16px;height:16px;flex:0 0 auto}
+.dv-sound .i-on,.dv-sound.on .i-off{display:none}
+.dv-sound.on .i-on{display:block}
 .hero-actions{margin:30px 0 64px}
 
 /* ---------- sections ---------- */
@@ -333,6 +343,8 @@ table.t tr.com .mname{color:var(--ink2)}
   .dv-badge{font-size:12px;gap:8px;padding:5px 12px 5px 5px}
   .dv-play{width:24px;height:24px}
   .dv-play svg{width:11px;height:11px}
+  .dv-sound{top:8px;right:8px;padding:6px 11px 6px 9px;font-size:12px;gap:6px}
+  .dv-sound svg{width:14px;height:14px}
   .hero-actions{margin:22px 0 44px;gap:8px}
   section.sec{padding:58px 0 44px}
   h2{font-size:32px}
@@ -393,9 +405,8 @@ table.t tr.com .mname{color:var(--ink2)}
   </nav>
   <div class="tldr"><p><span class="tag">TL;DR</span><b>We introduce <span class="nm" data-k="framework">Omni<span class="wm-x">X</span>Ref</span>, a unified framework for multimodal multi-reference video editing.</b><br>Our omni-reference set-up supports four dimensions: (i) number of references (1, ..., K), (ii) reference modality (text, image, video), (iii) reference attribute (camera, motion, content, style, VFX) and (iv) composition (text-image, text-video, image-video, text-image-video).</p></div>
   <section class="dv" id="video" aria-label="Demo video">
-    <div class="dv-frame has-video" id="dv-frame">
-      <video playsinline preload="metadata" poster="assets/video/demo_poster.jpg?v=2"><source src="assets/video/OmniXRef_Demo_Video.mp4" type="video/mp4">Your browser does not support HTML5 video.</video>
-      <button class="dv-ph dv-start" type="button" aria-label="Play demo video"><span class="dv-badge"><span class="dv-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.8v14.4L19 12z" fill="currentColor"/></svg></span><span class="dv-label">Watch demo video</span><em class="dv-dur">· 1:10</em></span></button>
+    <div class="dv-frame has-video playing" id="dv-frame">
+      <video muted playsinline preload="metadata" poster="assets/video/demo_poster.jpg?v=2"><source src="assets/video/OmniXRef_Demo_Video.mp4" type="video/mp4">Your browser does not support HTML5 video.</video><button class="dv-sound" type="button" aria-pressed="false" aria-label="Unmute demo video"><svg class="i-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6M17 9l6 6"/></svg><svg class="i-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><span class="dv-sound-l">Sound off</span></button><button class="dv-ph dv-start" type="button" aria-label="Play demo video"><span class="dv-badge"><span class="dv-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.8v14.4L19 12z" fill="currentColor"/></svg></span><span class="dv-label">Watch demo video</span><em class="dv-dur">· 1:10</em></span></button>
     </div>
   </section>
   <div class="hero-actions"><a href="#omnixref">Explore examples <span aria-hidden="true">&nbsp;↓</span></a><a href="#leaderboard">View benchmark <span aria-hidden="true">&nbsp;↗</span></a></div>
@@ -460,20 +471,49 @@ var LK=window.LINKS||{};
 document.querySelectorAll(".res-btn[data-link]").forEach(function(a){ var u=LK[a.dataset.link]; if(!u) return;
   a.href=u; a.target="_blank"; a.rel="noopener"; a.classList.remove("is-soon"); a.removeAttribute("aria-disabled"); a.removeAttribute("title");
   var t=a.querySelector(".soon-tag"); if(t) t.remove(); });
-// demo video: poster + play button; a click starts playback with native controls
+var DV_TPL="<video muted playsinline preload=\"metadata\" poster=\"{poster}\"><source src=\"{src}\" type=\"video/mp4\">Your browser does not support HTML5 video.</video><button class=\"dv-sound\" type=\"button\" aria-pressed=\"false\" aria-label=\"Unmute demo video\"><svg class=\"i-off\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H2v6h4l5 4V5z\"/><path d=\"m23 9-6 6M17 9l6 6\"/></svg><svg class=\"i-on\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M11 5 6 9H2v6h4l5 4V5z\"/><path d=\"M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14\"/></svg><span class=\"dv-sound-l\">Sound off</span></button><button class=\"dv-ph dv-start\" type=\"button\" aria-label=\"Play demo video\"><span class=\"dv-badge\"><span class=\"dv-play\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 4.8v14.4L19 12z\" fill=\"currentColor\"/></svg></span><span class=\"dv-label\">Watch demo video</span><em class=\"dv-dur\"></em></span></button>";
+// demo video: autoplays muted and loops (browsers only allow silent autoplay); the pill turns sound on.
+// Falls back to a click-to-play poster if autoplay is blocked, reduced motion is requested, or Data Saver is on.
 var DV=window.DEMO_VIDEO||{}, dvf=document.getElementById("dv-frame");
 if(dvf && DV.src && !dvf.querySelector("video")){
-  dvf.innerHTML='<video playsinline preload="metadata"'+(DV.poster?' poster="'+esc(DV.poster)+'"':"")+'><source src="'+esc(DV.src)+'" type="video/mp4"></video>'+
-    '<button class="dv-ph dv-start" type="button" aria-label="Play demo video"><span class="dv-badge"><span class="dv-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.8v14.4L19 12z" fill="currentColor"/></svg></span><span class="dv-label">Watch demo video</span><em class="dv-dur"></em></span></button>'; }
-var dvv=dvf&&dvf.querySelector("video"), dvb=dvf&&dvf.querySelector(".dv-start");
+  dvf.classList.add("has-video","playing");
+  dvf.innerHTML=DV_TPL.replace("{src}",esc(DV.src)).replace("{poster}",esc(DV.poster||""));
+}
+var dvv=dvf&&dvf.querySelector("video"), dvb=dvf&&dvf.querySelector(".dv-start"), dvs=dvf&&dvf.querySelector(".dv-sound");
 if(dvv&&dvb){
-  dvf.classList.add("has-video");
+  var dvSrc=dvv.querySelector("source");
+  if(DV.src && dvSrc && dvSrc.getAttribute("src")!==DV.src){ dvSrc.setAttribute("src",DV.src); dvv.load(); }
+  if(DV.poster && dvv.getAttribute("poster")!==DV.poster) dvv.setAttribute("poster",DV.poster);
+  var dvAuto=DV.autoplay!==false
+    && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+    && !(navigator.connection && navigator.connection.saveData);
+  var dvUserPaused=false, dvSelfPause=false, dvInView=true, ptb=document.getElementById("playtoggle");
+  var dvAllPaused=function(){ return !!ptb && ptb.getAttribute("aria-pressed")==="true"; };
+  var dvPoster=function(on){ dvf.classList.toggle("playing",!on); if(on) dvv.controls=false; };
+  var dvPlay=function(){ var p=dvv.play(); if(p&&p.catch) p.catch(function(e){        // blocked or unplayable -> poster; AbortError = our own pause
+    if(e && (e.name==="NotAllowedError" || e.name==="NotSupportedError")) dvPoster(true); }); };
+  var dvHold=function(){ if(!dvv.paused){ dvSelfPause=true; dvv.pause(); } };
+  var dvSound=function(){ if(!dvs) return; var on=!dvv.muted; dvs.classList.toggle("on",on); dvs.setAttribute("aria-pressed",String(on));
+    dvs.setAttribute("aria-label",on?"Mute demo video":"Unmute demo video"); dvs.querySelector(".dv-sound-l").textContent=on?"Sound on":"Sound off"; };
   var dvDur=function(){ var d=Math.round(dvv.duration||0), el=dvf.querySelector(".dv-dur"); if(d&&el) el.textContent="· "+Math.floor(d/60)+":"+("0"+d%60).slice(-2); };
   dvv.addEventListener("loadedmetadata",dvDur); if(dvv.readyState>=1) dvDur();
-  dvb.addEventListener("click",function(){ dvv.controls=true; dvf.classList.add("playing"); var p=dvv.play(); if(p&&p.catch) p.catch(function(){ dvf.classList.remove("playing"); }); });
-  dvv.addEventListener("ended",function(){ dvv.controls=false; dvf.classList.remove("playing"); try{ dvv.load(); }catch(e){} var l=dvb.querySelector(".dv-label"); if(l) l.textContent="Replay demo video"; dvb.setAttribute("aria-label","Replay demo video"); });
-  var ptb=document.getElementById("playtoggle");  // "Pause all" also pauses the demo
-  if(ptb) ptb.addEventListener("click",function(){ if(ptb.getAttribute("aria-pressed")!=="true" && !dvv.paused) dvv.pause(); });
+  dvv.addEventListener("play",function(){ dvUserPaused=false; dvv.controls=true; dvPoster(false); });
+  dvv.addEventListener("pause",function(){ if(dvSelfPause) dvSelfPause=false; else if(!dvv.ended) dvUserPaused=true; });
+  dvv.addEventListener("volumechange",dvSound);
+  dvv.addEventListener("ended",function(){ dvPoster(true); try{ dvv.load(); }catch(e){}
+    var l=dvb.querySelector(".dv-label"); if(l) l.textContent="Replay demo video"; dvb.setAttribute("aria-label","Replay demo video"); });
+  dvb.addEventListener("click",function(){ dvv.muted=false; dvPlay(); });            // a click is a user gesture: play with sound
+  if(dvs) dvs.addEventListener("click",function(){ dvv.muted=!dvv.muted; if(dvv.paused) dvPlay(); });
+  if(ptb) ptb.addEventListener("click",function(){ setTimeout(function(){              // after the page's own "Pause all" handler
+    if(dvAllPaused()) dvHold(); else if(dvAuto && dvInView && !dvUserPaused) dvPlay(); },0); });
+  if(dvAuto){                                                                            // plays only while >=20% on screen
+    dvv.muted=true; dvv.loop=true; dvPoster(false);
+    if("IntersectionObserver" in window) new IntersectionObserver(function(es){ es.forEach(function(e){
+      dvInView=e.isIntersecting && e.intersectionRatio>=.2;
+      if(!dvInView) dvHold(); else if(!dvUserPaused && !dvAllPaused()) dvPlay(); }); },{threshold:[0,.2]}).observe(dvf);
+    else dvPlay();
+  } else { dvv.muted=false; dvPoster(true); }
+  dvSound();
 }
 function nm(k){ return '<span class="nm" data-k="'+k+'">'+wmHTML(N[k]||k)+'</span>'; }
 
