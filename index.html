@@ -498,7 +498,8 @@ if(dvv&&dvb){
   var dvDur=function(){ var d=Math.round(dvv.duration||0), el=dvf.querySelector(".dv-dur"); if(d&&el) el.textContent="· "+Math.floor(d/60)+":"+("0"+d%60).slice(-2); };
   dvv.addEventListener("loadedmetadata",dvDur); if(dvv.readyState>=1) dvDur();
   dvv.addEventListener("play",function(){ dvUserPaused=false; dvv.controls=true; dvPoster(false); });
-  dvv.addEventListener("pause",function(){ if(dvSelfPause) dvSelfPause=false; else if(!dvv.ended) dvUserPaused=true; });
+  dvv.addEventListener("pause",function(){ if(dvSelfPause) dvSelfPause=false; else if(!dvv.ended && !document.hidden) dvUserPaused=true; });  // browser-initiated pauses in hidden tabs are not the user's
+  document.addEventListener("visibilitychange",function(){ if(!dvAuto) return; if(document.hidden) dvHold(); else if(dvInView && !dvUserPaused && !dvAllPaused()) dvPlay(); });
   dvv.addEventListener("volumechange",dvSound);
   dvv.addEventListener("ended",function(){ dvPoster(true); try{ dvv.load(); }catch(e){}
     var l=dvb.querySelector(".dv-label"); if(l) l.textContent="Replay demo video"; dvb.setAttribute("aria-label","Replay demo video"); });
