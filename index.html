@@ -168,6 +168,11 @@ a.res-btn[href]:hover,.hero-actions a:first-child:hover{transform:translateY(-2p
 .dv-sound svg{width:16px;height:16px;flex:0 0 auto}
 .dv-sound .i-on,.dv-sound.on .i-off{display:none}
 .dv-sound.on .i-on{display:block}
+/* sound was blocked by the browser: make "Click for sound" easy to spot */
+.dv-sound.hint{background:rgba(106,75,242,.88);border-color:rgba(255,255,255,.55)}
+.dv-sound.hint:hover{background:rgba(106,75,242,1)}
+.dv-sound.hint::after{content:"";position:absolute;inset:-4px;border-radius:inherit;border:2px solid rgba(160,130,255,.75);animation:dvPulse 1.8s ease-out infinite;pointer-events:none}
+@keyframes dvPulse{0%{opacity:.9;transform:scale(1)}80%,100%{opacity:0;transform:scale(1.22)}}
 .hero-actions{margin:30px 0 64px}
 
 /* ---------- sections ---------- */
@@ -364,6 +369,7 @@ table.t tr.com .mname{color:var(--ink2)}
   html{scroll-behavior:auto}
   .cz-track.anim,.cz-viewport{transition:none}
   .res-btn,.hero-actions a,.au a{transition:none}
+  .dv-sound.hint::after{animation:none;opacity:.6}
 }
 </style>
 </head>
@@ -496,13 +502,14 @@ if(dvv&&dvb){
   var dvPoster=function(on){ dvf.classList.toggle("playing",!on); if(on) dvv.controls=false; };
   var dvSetMuted=function(m){ if(dvv.muted!==m){ dvSelfMuteAt=Date.now(); dvv.muted=m; } };
   var dvArm=function(){                                     // turn sound on at the visitor's first interaction outside the player
-    if(dvArmed) return; dvArmed=true;
-    var evs=["pointerdown","keydown","touchend"];
+    if(dvArmed) return; dvArmed=true; dvSound();
+    var evs=["click","keydown","touchend"];                 // events every browser treats as a user gesture
+    var off=function(){ evs.forEach(function(t){ document.removeEventListener(t,on,true); }); };
     var on=function(e){
       if(dvf.contains(e.target)) return;                    // the player's own buttons handle themselves
-      evs.forEach(function(t){ document.removeEventListener(t,on,true); });
-      dvSoundRefused=false;
-      if(dvWantSound && !dvUserMuted && dvv.muted){ dvUnmuteAt=Date.now(); dvSetMuted(false); }
+      if(dvUserMuted || !dvWantSound){ off(); return; }
+      if(dvv.muted){ dvUnmuteAt=Date.now(); dvSoundRefused=false; dvSetMuted(false); dvSound(); }
+      setTimeout(function(){ if(!dvv.muted && (!dvv.paused || !dvInView)) off(); },700);  // keep listening until it sticks
     };
     evs.forEach(function(t){ document.addEventListener(t,on,true); });
   };
@@ -513,14 +520,17 @@ if(dvv&&dvb){
   }); };
   var dvStart=function(){ if(dvWantSound && !dvUserMuted && !dvSoundRefused) dvSetMuted(false); dvPlay(); };
   var dvHold=function(){ if(!dvv.paused){ dvSelfPause=true; dvv.pause(); } };
-  var dvSound=function(){ if(!dvs) return; var on=!dvv.muted; dvs.classList.toggle("on",on); dvs.setAttribute("aria-pressed",String(on));
-    dvs.setAttribute("aria-label",on?"Mute demo video":"Unmute demo video"); dvs.querySelector(".dv-sound-l").textContent=on?"Sound on":"Sound off"; };
+  var dvTouch=window.matchMedia && window.matchMedia("(hover: none)").matches;
+  var dvSound=function(){ if(!dvs) return; var on=!dvv.muted, hint=!on && dvSoundRefused && !dvUserMuted && dvWantSound;
+    dvs.classList.toggle("on",on); dvs.classList.toggle("hint",hint); dvs.setAttribute("aria-pressed",String(on));
+    dvs.setAttribute("aria-label",on?"Mute demo video":"Unmute demo video");
+    dvs.querySelector(".dv-sound-l").textContent=on?"Sound on":(hint?(dvTouch?"Tap for sound":"Click for sound"):"Sound off"); };
   var dvDur=function(){ var d=Math.round(dvv.duration||0), el=dvf.querySelector(".dv-dur"); if(d&&el) el.textContent="· "+Math.floor(d/60)+":"+("0"+d%60).slice(-2); };
   dvv.addEventListener("loadedmetadata",dvDur); if(dvv.readyState>=1) dvDur();
   dvv.addEventListener("play",function(){ dvUserPaused=false; dvv.controls=true; dvPoster(false); });
   dvv.addEventListener("pause",function(){
     if(dvSelfPause){ dvSelfPause=false; return; }
-    if(Date.now()-dvUnmuteAt<500 && !document.hidden){ dvSoundRefused=true; dvSetMuted(true); dvPlay(); return; }  // browser refused the unmute
+    if(Date.now()-dvUnmuteAt<500 && !document.hidden){ dvSoundRefused=true; dvSetMuted(true); dvSound(); dvPlay(); return; }  // browser refused the unmute
     if(!dvv.ended && !document.hidden) dvUserPaused=true;  // browser-initiated pauses in hidden tabs are not the user's
   });
   dvv.addEventListener("volumechange",function(){ if(Date.now()-dvSelfMuteAt>150) dvUserMuted=dvv.muted; dvSound(); });  // native controls
