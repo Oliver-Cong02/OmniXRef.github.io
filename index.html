@@ -106,7 +106,7 @@ b .nm[data-k],strong .nm[data-k]{font-weight:inherit}
 .hero .wrap{position:relative}
 .title{margin:0 auto;padding:0;font-weight:400}
 .title .wordmark{display:block;font-size:clamp(60px,9.6vw,128px);line-height:.94;padding-bottom:.035em}
-.title-sub{display:block;max-width:24em;margin:20px auto 0;font-size:clamp(21px,2.45vw,32px);font-weight:560;line-height:1.22;letter-spacing:-.026em;color:#26324a;text-wrap:balance}
+.title-sub{display:block;max-width:none;white-space:nowrap;margin:20px auto 0;font-size:clamp(21px,2.45vw,32px);font-weight:560;line-height:1.22;letter-spacing:-.026em;color:#26324a;text-wrap:balance}
 .authors{margin:34px auto 0;max-width:1000px}
 .author-list{display:flex;flex-wrap:wrap;justify-content:center;gap:7px 26px;margin:0;font-size:17.5px;line-height:1.45;font-weight:560;letter-spacing:-.01em;color:var(--ink)}
 .au{white-space:nowrap}
@@ -299,6 +299,7 @@ table.t tr.com .mname{color:var(--ink2)}
   .cz,.lb{padding:16px 14px 13px;border-radius:16px}
 }
 @media (max-width:700px){.au-break{display:none}}
+@media (max-width:680px){.title-sub{white-space:normal;max-width:24em}}
 @media (max-width:640px){
   .topbar .wrap{height:58px;gap:10px}
   .brand .wordmark{font-size:19px}
