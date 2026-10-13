@@ -168,11 +168,19 @@ a.res-btn[href]:hover,.hero-actions a:first-child:hover{transform:translateY(-2p
 .dv-sound svg{width:16px;height:16px;flex:0 0 auto}
 .dv-sound .i-on,.dv-sound.on .i-off{display:none}
 .dv-sound.on .i-on{display:block}
-/* sound was blocked by the browser: make "Click for sound" easy to spot */
-.dv-sound.hint{background:rgba(106,75,242,.88);border-color:rgba(255,255,255,.55)}
-.dv-sound.hint:hover{background:rgba(106,75,242,1)}
-.dv-sound.hint::after{content:"";position:absolute;inset:-4px;border-radius:inherit;border:2px solid rgba(160,130,255,.75);animation:dvPulse 1.8s ease-out infinite;pointer-events:none}
-@keyframes dvPulse{0%{opacity:.9;transform:scale(1)}80%,100%{opacity:0;transform:scale(1.22)}}
+/* sound was blocked by the browser: a soft brand tint (the caption below carries the message) */
+.dv-sound.hint{background:rgba(106,75,242,.62);border-color:rgba(255,255,255,.4)}
+.dv-sound.hint:hover{background:rgba(106,75,242,.82)}
+/* caption under the player: recommends sound, with an inline "Turn on sound" that hides once it's on */
+.dv-note{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 9px;margin:16px auto 0;font-size:13.5px;line-height:1.4;color:var(--muted);letter-spacing:-.003em}
+.dv-note-i{width:17px;height:17px;flex:0 0 auto}
+.dv-note-sep{color:var(--faint)}
+.dv-note-btn{-webkit-appearance:none;appearance:none;border:0;margin:0;padding:2px 0;background:var(--xgrad) 0 100%/0 1.5px no-repeat;font:650 13.5px/1.4 var(--sans);color:var(--accent);cursor:pointer;transition:background-size .25s ease,color .15s}
+.dv-note-btn:hover,.dv-note-btn:focus-visible{background-size:100% 1.5px;color:#5536e6}
+.dv-note-btn:focus-visible{outline:none}
+.dv-note.is-on .dv-note-sep,.dv-note.is-on .dv-note-btn{display:none}
+.dv-note-short{display:none}
+.dv + .hero-actions{margin-top:26px}
 .hero-actions{margin:30px 0 64px}
 
 /* ---------- sections ---------- */
@@ -351,6 +359,11 @@ table.t tr.com .mname{color:var(--ink2)}
   .dv-play svg{width:11px;height:11px}
   .dv-sound{top:8px;right:8px;padding:6px 11px 6px 9px;font-size:12px;gap:6px}
   .dv-sound svg{width:14px;height:14px}
+  .dv-note{font-size:12.5px;margin-top:12px;gap:2px 7px}
+  .dv-note-long{display:none}
+  .dv-note-short{display:inline}
+  .dv-note-btn{font-size:12.5px}
+  .dv-note-i{width:15px;height:15px}
   .hero-actions{margin:22px 0 44px;gap:8px}
   section.sec{padding:58px 0 44px}
   h2{font-size:32px}
@@ -369,7 +382,7 @@ table.t tr.com .mname{color:var(--ink2)}
   html{scroll-behavior:auto}
   .cz-track.anim,.cz-viewport{transition:none}
   .res-btn,.hero-actions a,.au a{transition:none}
-  .dv-sound.hint::after{animation:none;opacity:.6}
+  .dv-note-btn{transition:none}
 }
 </style>
 </head>
@@ -415,6 +428,7 @@ table.t tr.com .mname{color:var(--ink2)}
     <div class="dv-frame has-video playing" id="dv-frame">
       <video muted playsinline preload="metadata" poster="assets/video/demo_poster.jpg?v=3"><source src="assets/video/OmniXRef_Demo_Video.mp4?v=2" type="video/mp4">Your browser does not support HTML5 video.</video><button class="dv-sound" type="button" aria-pressed="false" aria-label="Unmute demo video"><svg class="i-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="m23 9-6 6M17 9l6 6"/></svg><svg class="i-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a10 10 0 0 1 0 14"/></svg><span class="dv-sound-l">Sound off</span></button><button class="dv-ph dv-start" type="button" aria-label="Play demo video"><span class="dv-badge"><span class="dv-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.8v14.4L19 12z" fill="currentColor"/></svg></span><span class="dv-label">Watch demo video</span><em class="dv-dur">· 1:32</em></span></button>
     </div>
+    <p class="dv-note" id="dv-note"><svg class="dv-note-i" viewBox="0 0 24 24" fill="none" stroke="url(#dvNoteGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><defs><linearGradient id="dvNoteGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4d7cff"/><stop offset=".42" stop-color="#8b5cf6"/><stop offset=".72" stop-color="#e3489b"/><stop offset="1" stop-color="#f6763a"/></linearGradient></defs><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg><span class="dv-note-t"><span class="dv-note-long">For the best experience, watch with sound on</span><span class="dv-note-short">Best with sound on</span></span><span class="dv-note-sep" aria-hidden="true">·</span><button class="dv-note-btn" type="button">Turn on sound</button></p>
   </section>
   <div class="hero-actions"><a href="#omnixref">Explore examples <span aria-hidden="true">&nbsp;↓</span></a><a href="#leaderboard">View benchmark <span aria-hidden="true">&nbsp;↗</span></a></div>
 </div></header>
@@ -520,11 +534,13 @@ if(dvv&&dvb){
   }); };
   var dvStart=function(){ if(dvWantSound && !dvUserMuted && !dvSoundRefused) dvSetMuted(false); dvPlay(); };
   var dvHold=function(){ if(!dvv.paused){ dvSelfPause=true; dvv.pause(); } };
-  var dvTouch=window.matchMedia && window.matchMedia("(hover: none)").matches;
-  var dvSound=function(){ if(!dvs) return; var on=!dvv.muted, hint=!on && dvSoundRefused && !dvUserMuted && dvWantSound;
+  var dvNote=document.getElementById("dv-note"), dvNoteBtn=dvNote&&dvNote.querySelector(".dv-note-btn");
+  var dvSound=function(){ var on=!dvv.muted, hint=!on && dvSoundRefused && !dvUserMuted && dvWantSound;
+    if(dvNote) dvNote.classList.toggle("is-on",on);                       // the caption's "Turn on sound" hides once sound is on
+    if(!dvs) return;
     dvs.classList.toggle("on",on); dvs.classList.toggle("hint",hint); dvs.setAttribute("aria-pressed",String(on));
     dvs.setAttribute("aria-label",on?"Mute demo video":"Unmute demo video");
-    dvs.querySelector(".dv-sound-l").textContent=on?"Sound on":(hint?(dvTouch?"Tap for sound":"Click for sound"):"Sound off"); };
+    dvs.querySelector(".dv-sound-l").textContent=on?"Sound on":"Sound off"; };
   var dvDur=function(){ var d=Math.round(dvv.duration||0), el=dvf.querySelector(".dv-dur"); if(d&&el) el.textContent="· "+Math.floor(d/60)+":"+("0"+d%60).slice(-2); };
   dvv.addEventListener("loadedmetadata",dvDur); if(dvv.readyState>=1) dvDur();
   dvv.addEventListener("play",function(){ dvUserPaused=false; dvv.controls=true; dvPoster(false); });
@@ -538,6 +554,8 @@ if(dvv&&dvb){
     var l=dvb.querySelector(".dv-label"); if(l) l.textContent="Replay demo video"; dvb.setAttribute("aria-label","Replay demo video"); });
   dvb.addEventListener("click",function(){ dvSoundRefused=false; dvSetMuted(!dvWantSound); dvPlay(); });   // poster click = user gesture
   if(dvs) dvs.addEventListener("click",function(){ var m=!dvv.muted; dvUserMuted=m; dvSoundRefused=false; dvSetMuted(m); dvSound(); if(dvv.paused) dvPlay(); });
+  if(dvNoteBtn) dvNoteBtn.addEventListener("click",function(){ dvUserMuted=false; dvSoundRefused=false; dvSetMuted(false); dvSound();
+    if(dvv.paused && !dvAllPaused()) dvPlay(); });
   document.addEventListener("visibilitychange",function(){ if(!dvAuto) return; if(document.hidden) dvHold(); else if(dvInView && !dvUserPaused && !dvAllPaused()) dvStart(); });
   if(ptb) ptb.addEventListener("click",function(){ setTimeout(function(){              // after the page's own "Pause all" handler
     if(dvAllPaused()) dvHold(); else if(dvAuto && dvInView && !dvUserPaused) dvStart(); },0); });
