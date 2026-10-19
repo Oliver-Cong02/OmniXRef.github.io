@@ -18,3 +18,4 @@ Everything editable sits in the config block at the top of `index.html`:
 - **Paper / Code / arXiv buttons** — paste the URLs into `window.LINKS`. Empty Paper/arXiv show as "Soon"; the Code button stays hidden until its URL is filled in.
 - **Demo video** — `assets/video/OmniXRef_Demo_Video.mp4` (poster: `assets/video/demo_poster.jpg`). It autoplays and loops while on screen with sound on by default; browsers that refuse sound before any interaction start it muted and turn sound on at the visitor's first click/tap/key. In `window.DEMO_VIDEO`, `sound: false` always starts muted and `autoplay: false` gives click-to-play. Replace the file to update it.
 - **Method name** — change `window.NAMES`; every mention on the page, including the title wordmark, follows it.
+- **BibTeX** — the Citation section near the end of `index.html` (`<pre id="bibtex">`): arXiv's own export, verbatim, one `<span class="bl">` per line. The Copy button copies exactly the text shown.

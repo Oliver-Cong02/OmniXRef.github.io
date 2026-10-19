@@ -312,6 +312,7 @@ table.t tr.com .mname{color:var(--ink2)}
 .bib{position:relative;background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:22px 26px;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
 .bib::before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:3px;border-radius:0 3px 3px 0;background:var(--xgrad-bar)}
 .bib pre{margin:0;padding-right:96px;font:500 13.5px/1.75 var(--mono);color:var(--ink2);white-space:pre-wrap;overflow-wrap:anywhere;tab-size:2}
+.bib .bl{display:block;padding-left:calc(var(--hi,0)*1ch);text-indent:calc(var(--hi,0)*-1ch)}
 .bib .bt{color:var(--accent);font-weight:700}
 .bib .bkey{color:var(--ink);font-weight:650}
 .bib .bf{color:var(--muted)}
@@ -391,6 +392,7 @@ table.t tr.com .mname{color:var(--ink2)}
   .foot .wrap{justify-content:center;text-align:center}
   .bib{padding:16px 16px 16px 18px}
   .bib pre{padding-right:0;padding-top:40px;font-size:12px}
+  .bib .bl.f{padding-left:8ch;text-indent:-8ch}
   .bib-copy{top:10px;right:10px}
   .foot-brand{justify-content:center}
 }
@@ -488,12 +490,15 @@ table.t tr.com .mname{color:var(--ink2)}
   <div class="eyebrow">Citation</div>
   <div class="sec-head"><h2>BibTeX</h2></div>
   <p class="lede">If you find <span class="nm" data-k="framework">Omni<span class="wm-x">X</span>Ref</span> useful in your research, please consider citing our paper.</p>
-  <div class="bib"><button class="bib-copy" type="button" aria-label="Copy BibTeX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button><pre id="bibtex"><span class="bt">@article</span>{<span class="bkey">cong2026omnixref</span>,
-  <span class="bf">title</span>   = {{OmniXRef}: A Unified Framework for Multimodal Multi-Reference Video Editing},
-  <span class="bf">author</span>  = {Cong, Xiaoyan and Wang, Tianyu and Jeong, Hyeonho and Zhang, Zhifei and Zhou, Yuqian and Li, Yijun and Liu, Shaoteng and Lin, Zhe and Sridhar, Srinath and Kim, Soo Ye},
-  <span class="bf">journal</span> = {arXiv preprint arXiv:2610.22744},
-  <span class="bf">year</span>    = {2026}
-}</pre></div>
+  <div class="bib"><button class="bib-copy" type="button" aria-label="Copy BibTeX"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span>Copy</span></button><pre id="bibtex"><span class="bl" style="--hi:2"><span class="bt">@misc</span>{<span class="bkey">cong2026omnixrefunifiedframeworkmultimodal</span>,
+</span><span class="bl f" style="--hi:13">      <span class="bf">title</span>={OmniXRef: A Unified Framework for Multimodal Multi-Reference Video Editing}, 
+</span><span class="bl f" style="--hi:14">      <span class="bf">author</span>={Xiaoyan Cong and Tianyu Wang and Hyeonho Jeong and Zhifei Zhang and Yuqian Zhou and Yijun Li and Shaoteng Liu and Zhe Lin and Srinath Sridhar and Soo Ye Kim},
+</span><span class="bl f" style="--hi:12">      <span class="bf">year</span>={2026},
+</span><span class="bl f" style="--hi:14">      <span class="bf">eprint</span>={2610.22744},
+</span><span class="bl f" style="--hi:21">      <span class="bf">archivePrefix</span>={arXiv},
+</span><span class="bl f" style="--hi:20">      <span class="bf">primaryClass</span>={cs.CV},
+</span><span class="bl f" style="--hi:11">      <span class="bf">url</span>={https://arxiv.org/abs/2610.22744}, 
+</span><span class="bl">}</span></pre></div>
 </div></section>
 </main>
 
